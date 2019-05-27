@@ -5,8 +5,7 @@ package com.game.madgic;
  * Date: 2019-05-19
  */
 @FunctionalInterface
-public interface Effect<T> {
+public interface Effect {
 
-    void affect(T target);
-
+    void resolve();
 }

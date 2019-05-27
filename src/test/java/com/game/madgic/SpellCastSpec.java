@@ -23,43 +23,50 @@ public class SpellCastSpec {
     @Before
     public void setup() {
 
-        creature = mock(Creature.class);
-        enchant = mock(Enchantment.class);
-        sorcerer = new Sorcerer();
+        this.creature = mock(Creature.class);
+        this.enchant = mock(Enchantment.class);
+        this.sorcerer = new Sorcerer();
     }
 
     @Test
-    public void whenTerrorSpellIsCastedOnCreatureThenCreatureDies() {
+    public void resolveKillCreatureSpell() {
 
-        sorcerer.casts(creature, Creature::die);
-        sorcerer.casts(creature, (toto -> toto.die()));
-        sorcerer.casts(() -> {
-            enchant.die();
-            log.info("BOOM");
-        });
-        sorcerer.casts(() -> log.info("SHAZAM"));
-        sorcerer.casts(new TargetingSpell<Creature>() {
-            @Override
-            public Effect<Creature> getEffect() {
-                return target -> target.die();
-            }
+        this.sorcerer.casts(new Spell(() -> this.creature.die()));
 
-            @Override
-            public Creature getTarget() {
-                return creature;
-            }
-        });
+        this.sorcerer.casts(new Spell(() -> {
+            this.enchant.die();
+            SpellCastSpec.log.info("BOOM");
+        }));
 
-        then(enchant).should().die();
-        verify(creature, times(3)).die();
+        then(this.enchant).should().die();
+        verify(this.creature, times(1)).die();
     }
 
     @Test
-    public void castOngoingSpellAndAssureSpellIsCastedWhenWeavingIsComplete() {
+    public void ResolveCounterSpellBeforeAvadakedavra() {
 
-        Spell spell = new OnGoingSpell<>(Creature::die).on(creature);
-        sorcerer.casts(spell);
-        then(creature).should().die();
+        final Spell avadakedavra = new Spell(() -> this.creature.die());
+
+        final Spell expeliarmus = new Spell(() -> avadakedavra.destroy());
+
+        expeliarmus.resolve();
+        avadakedavra.resolve();
+
+        then(this.creature).shouldHaveZeroInteractions();
+
+    }
+
+    @Test
+    public void resolveAvadaKedabraBeforeCounterSpell() {
+
+        final Spell avadakedavra = new Spell(() -> this.creature.die());
+
+        final Spell expeliarmus = new Spell(() -> avadakedavra.destroy());
+
+        avadakedavra.resolve();
+        expeliarmus.resolve();
+
+        then(this.creature).should().die();
 
     }
 
