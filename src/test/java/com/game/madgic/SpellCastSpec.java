@@ -17,56 +17,59 @@ import static org.mockito.Mockito.verify;
 public class SpellCastSpec {
 
     private Creature creature;
-    private Enchantment enchant;
     private Sorcerer sorcerer;
 
     @Before
     public void setup() {
-
-        this.creature = mock(Creature.class);
-        this.enchant = mock(Enchantment.class);
-        this.sorcerer = new Sorcerer();
+        creature = mock(Creature.class);
+        sorcerer = new Sorcerer();
     }
 
     @Test
     public void resolveKillCreatureSpell() {
-
-        this.sorcerer.casts(new Spell(() -> this.creature.die()));
-
-        this.sorcerer.casts(new Spell(() -> {
-            this.enchant.die();
-            SpellCastSpec.log.info("BOOM");
-        }));
-
-        then(this.enchant).should().die();
-        verify(this.creature, times(1)).die();
+        sorcerer.casts(new Spell(() -> creature.die()));
+        verify(creature, times(1)).die();
     }
 
     @Test
     public void ResolveCounterSpellBeforeAvadakedavra() {
 
-        final Spell avadakedavra = new Spell(() -> this.creature.die());
+        Spell avadakedavra = new Spell(() -> creature.die());
 
-        final Spell expeliarmus = new Spell(() -> avadakedavra.destroy());
+        Spell expeliarmus = new Spell(() -> avadakedavra.destroy());
 
         expeliarmus.resolve();
         avadakedavra.resolve();
 
-        then(this.creature).shouldHaveZeroInteractions();
+        then(creature).shouldHaveZeroInteractions();
 
     }
 
     @Test
     public void resolveAvadaKedabraBeforeCounterSpell() {
 
-        final Spell avadakedavra = new Spell(() -> this.creature.die());
+        Spell avadakedavra = new Spell(() -> creature.die());
 
-        final Spell expeliarmus = new Spell(() -> avadakedavra.destroy());
+        Spell expeliarmus = new Spell(() -> avadakedavra.destroy());
 
         avadakedavra.resolve();
         expeliarmus.resolve();
 
-        then(this.creature).should().die();
+        then(creature).should().die();
+
+    }
+
+    @Test
+    public void weaveASpellThenChoseTarget() {
+        this.sorcerer.cast((Creature creature) -> creature.die(), this.creature);
+        then(creature).should().die();
+
+    }
+
+    @Test
+    public void weaveASpellThenChoseTarget2() {
+        this.sorcerer.cast((Creature creature) -> creature.die()).on(this.creature);
+        then(creature).should().die();
 
     }
 

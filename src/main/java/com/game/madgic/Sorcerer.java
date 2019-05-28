@@ -7,10 +7,18 @@ package com.game.madgic;
 
 public class Sorcerer {
 
-    void casts(final Spell spell) {
+    void casts(Spell spell) {
         spell.resolve();
 
     }
 
+    public void cast(CastOnTarget<Creature> stuff, Creature creature) {
+        new Spell(() -> stuff.doCast(creature)).resolve();
 
+    }
+
+    public SpellPreparation cast(CastOnTarget<Creature> stuff) {
+        return new SpellPreparation(stuff);
+
+    }
 }

@@ -2,12 +2,12 @@ package com.game.madgic;
 
 /**
  * @author benjaminmartinez
- * Date: 2019-05-18
+ * Date: 2019-05-28
  */
 @FunctionalInterface
-public interface HasEffect {
+public interface CastOnTarget<T> {
 
+    void doCast(T target);
 
-    Effect getEffect();
 
 }
